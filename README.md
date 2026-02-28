@@ -60,7 +60,7 @@ This system prevents overbooking with optimistic locking and Redis caching.
 |----------|--------------|-------------|------------|-----------|----------|
 | **Optimistic Locking** | 0.5% | 44ms | 9.76 | 500 users | Normal load |
 | **Queue-based** | 100% | 1228ms | 1.00 | Memory limit | Guaranteed delivery |
-| **Admission Control** | 100%* | 2.7ms | 0.02 | ∞ | High contention |
+| **Admission Control** | 100%* | 2.7ms | 0.02 | Redis capacity | High contention |
 
 *100% of admitted requests. Fast-rejects 99% before DB hit.
 
@@ -89,7 +89,7 @@ Admission Control:
   → 0% error rate
 ```
 
-**Solution:** Fail fast at the gate, don't let chaos reach the database.
+**Approach:** Early admission control reduces write amplification and protects the primary database.
 
 ---
 
@@ -194,7 +194,16 @@ python3 experiments/production_stress_test.py
 4. Horizontal scaling with load balancer
 5. Add rate limiting per user
 
-**Honest assessment:** Production-ready for normal scale. Needs admission control for viral scale.
+**Honest assessment:** Suitable for moderate single-region workloads with defined scaling boundaries.
+
+---
+
+## Transaction Model
+
+- **Isolation Level:** READ COMMITTED (PostgreSQL default)
+- **Concurrency Guard:** Version column with optimistic locking
+- **Safety Net:** Database constraint `CHECK (available_seats >= 0)`
+- **Failure Mode:** Retry on version conflict, fail after 3 attempts
 
 ---
 

@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: event-booking-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/event_booking
+      - DATABASE_URL_SYNC=postgresql://postgres:postgres@db:5432/event_booking
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=super-secret-key-change-in-production
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - event-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: event-booking-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=event_booking
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - event-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: event-booking-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - event-network
+
+  # Load testing service
+  locust:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: event-booking-locust
+    command: locust -f /app/locustfile.py --host=http://api:8000
+    ports:
+      - "8089:8089"
+    depends_on:
+      - api
+    networks:
+      - event-network
+    profiles:
+      - loadtest
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  event-network:
+    driver: bridge

@@ -267,7 +267,7 @@ Connection pool (20): Saturates at ~500 concurrent writes
 
 ---
 
-## Elite Solution: Admission Control
+## Admission Control Strategy: Admission Control
 
 ### Problem
 Optimistic locking at 1000 users / 10 seats:

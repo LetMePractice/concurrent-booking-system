@@ -1,4 +1,4 @@
-# Elite Stress Testing Guide
+# Stress Testing Guide
 
 ## What Makes This Project Strong
 
@@ -309,7 +309,7 @@ Chose optimistic locking over pessimistic:
 
 ---
 
-## Elite Move: Document Everything
+## Key Practice: Document Everything
 
 Your README should show:
 1. **Test results** (actual numbers)

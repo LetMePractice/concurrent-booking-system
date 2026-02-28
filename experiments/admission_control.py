@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Elite Solution: Admission Control + Seat Reservation
+Admission Control + Seat Reservation
 Maintains <100ms latency, >95% success rate, no queue.
 
 Strategy:
@@ -177,7 +177,7 @@ async def test_sharded(users: int, seats: int):
     return system.metrics, duration, system.db_operations
 
 async def main():
-    print_header("ELITE SOLUTION: ADMISSION CONTROL")
+    print_header("ADMISSION CONTROL STRATEGY")
     print("Goal: <100ms P99, >95% success, no queue\n")
     
     SCENARIOS = [

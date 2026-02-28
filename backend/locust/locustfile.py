@@ -1,11 +1,11 @@
 """
-Elite Locust Test Suite
+Locust Load Test Suite
 
 Run scenarios:
-  locust -f elite_locustfile.py --tags concurrency  # Test overbooking
-  locust -f elite_locustfile.py --tags throughput   # Test cache
-  locust -f elite_locustfile.py --tags edge         # Test bad input
-  locust -f elite_locustfile.py                     # All tests
+  locust -f locustfile.py --tags concurrency  # Test overbooking
+  locust -f locustfile.py --tags throughput   # Test cache
+  locust -f locustfile.py --tags edge         # Test bad input
+  locust -f locustfile.py                     # All tests
 """
 
 import random
@@ -37,7 +37,7 @@ class ConcurrencyUser(HttpUser):
     """
     TEST 1: Concurrency - 100 users → 10 seats
     
-    Run: locust -f elite_locustfile.py --tags concurrency -u 100 -r 50 --run-time 30s
+    Run: locust -f locustfile.py --tags concurrency -u 100 -r 50 --run-time 30s
     
     After test, verify:
       SELECT COUNT(*) FROM bookings WHERE event_id = X;
@@ -108,7 +108,7 @@ class ThroughputUser(HttpUser):
     TEST 2: Throughput - Cache effectiveness
     
     Run twice:
-      1. With Redis: locust -f elite_locustfile.py --tags throughput -u 100 -r 20 --run-time 60s
+      1. With Redis: locust -f locustfile.py --tags throughput -u 100 -r 20 --run-time 60s
       2. Without Redis: Stop Redis, run again
     
     Compare:
@@ -146,7 +146,7 @@ class EdgeCaseUser(HttpUser):
     """
     TEST 3: Edge cases - Bad input handling
     
-    Run: locust -f elite_locustfile.py --tags edge -u 20 -r 5 --run-time 30s
+    Run: locust -f locustfile.py --tags edge -u 20 -r 5 --run-time 30s
     
     System should NOT crash, return proper error codes.
     """
@@ -258,7 +258,7 @@ class RealisticUser(HttpUser):
     """
     TEST 4: Realistic mixed workload
     
-    Run: locust -f elite_locustfile.py -u 200 -r 20 --run-time 120s
+    Run: locust -f locustfile.py -u 200 -r 20 --run-time 120s
     
     Simulates real traffic:
       - Mostly browsing (80%)

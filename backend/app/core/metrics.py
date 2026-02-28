@@ -62,9 +62,24 @@ active_connections = Gauge(
     'Number of active database connections'
 )
 
+connection_pool_size = Gauge(
+    'db_connection_pool_size',
+    'Database connection pool size'
+)
+
+connection_pool_overflow = Gauge(
+    'db_connection_pool_overflow',
+    'Database connection pool overflow count'
+)
+
 redis_connection_errors = Counter(
     'redis_connection_errors_total',
     'Redis connection errors'
+)
+
+redis_circuit_breaker_open = Gauge(
+    'redis_circuit_breaker_open',
+    'Redis circuit breaker state (1=open, 0=closed)'
 )
 
 def metrics_endpoint() -> Response:

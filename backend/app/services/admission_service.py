@@ -1,10 +1,22 @@
 """
 Admission control service for high-contention scenarios.
 Implements AdmissionStrategy interface using Redis.
+
+Circuit Breaker Pattern:
+  On Redis failure, the system "fails open" (admits all requests).
+  This prevents Redis outages from blocking all bookings.
+  Database remains authoritative - Redis is advisory only.
+  
+  Tradeoff: During Redis outage, system reverts to optimistic locking behavior.
+  This is acceptable because:
+  - Temporary degradation better than total outage
+  - Database constraints still prevent overbooking
+  - Redis failures should be rare and monitored
 """
 
 from app.services.interfaces.admission import AdmissionStrategy
 from app.infrastructure.redis_client import get_redis
+from app.core.metrics import redis_connection_errors, redis_circuit_breaker_open
 import os
 
 # Load Lua script
@@ -45,7 +57,9 @@ class RedisAdmission(AdmissionStrategy):
             result = self.script(keys=[seats_key, reserved_key], args=[seats])
             return bool(result)
         except Exception:
-            # On Redis failure, admit (fail open)
+            # Circuit breaker: On Redis failure, fail open (admit all)
+            redis_connection_errors.inc()
+            redis_circuit_breaker_open.set(1)
             return True
     
     async def release(self, event_id: int, seats: int = 1):

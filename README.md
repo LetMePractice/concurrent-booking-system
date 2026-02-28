@@ -177,8 +177,15 @@ python3 experiments/production_stress_test.py
 
 ### ✗ NOT Ready For
 - Viral flash sales (1000+ concurrent users per event)
-- Multi-region deployment
+- Multi-region deployment (clock drift, replication lag not handled)
 - 10,000+ concurrent users without horizontal scaling
+
+### Known Operational Gaps
+- No rate limiting per user
+- No distributed tracing
+- Redis desync requires manual reconciliation
+- Single-region only (no cross-region consistency)
+- Circuit breaker is basic (no half-open state)
 
 ### To Scale Further
 1. Implement admission control (see `experiments/admission_control.py`)
@@ -218,8 +225,12 @@ booking_attempts_total       # Total booking attempts
 booking_success_total        # Successful bookings
 booking_conflicts_total      # Conflicts (sold out)
 admission_rejected_total     # Fast rejections
-db_retry_count              # Retry attempts
+db_retry_attempts_total      # Retry attempts due to version conflicts
+db_connection_pool_size      # Connection pool size
+db_connection_pool_overflow  # Pool overflow count
 cache_hit_rate              # Redis cache effectiveness
+redis_connection_errors_total # Redis failures
+redis_circuit_breaker_open   # Circuit breaker state (1=open, 0=closed)
 ```
 
 ---

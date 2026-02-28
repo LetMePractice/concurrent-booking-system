@@ -58,7 +58,7 @@ This system prevents overbooking with optimistic locking and Redis caching.
 
 | Strategy | Success Rate | P99 Latency | DB Ops/Req | Breaks At | Use Case |
 |----------|--------------|-------------|------------|-----------|----------|
-| **Optimistic Locking** | 7% | 15ms | 9.76 | 500 users | Normal load |
+| **Optimistic Locking** | 0.5% | 44ms | 9.76 | 500 users | Normal load |
 | **Queue-based** | 100% | 1228ms | 1.00 | Memory limit | Guaranteed delivery |
 | **Admission Control** | 100%* | 2.7ms | 0.02 | ∞ | High contention |
 
